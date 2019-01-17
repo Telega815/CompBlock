@@ -29,6 +29,7 @@ void Client::initializeSocketAndTimers(Settings *set)
     connect(socket, &QAbstractSocket::hostFound, this, &Client::hostFound, Qt::DirectConnection);
     connect(thr, &DeskBlockThread::unblockCorrectPWD, this, &Client::unblockedByPWD, Qt::DirectConnection);
     connectedToServer = 0;
+    this->blockPcSlot();
     qtimerForReconection->start();
 }
 
@@ -57,10 +58,13 @@ void Client::changeTimeSlot()
 
 void Client::hostFound()
 {
-
-    qDebug() << "Sending: " << qtimeLeft.toString(Qt::TextDate).toUtf8();
-
-    socket->write("00:00:00");
+    if (thr->isBlocked == 0){
+        qDebug() << "Sending: " << qtimeLeft.toString(Qt::TextDate).toUtf8();
+        socket->write(qtimeLeft.toString(Qt::TextDate).toUtf8());
+    }else{
+        qDebug() << "Sending: " << "blocked";
+        socket->write("blocked");
+    }
     socket->waitForBytesWritten(500);
 
     connect(socket, &QIODevice::readyRead, this, &Client::readyRead, Qt::DirectConnection);
@@ -79,8 +83,10 @@ void Client::readyRead()
         connectedToServer = 1;
         qtimerForReconection->stop();
     }else if(answ == "unblock") {
+        qDebug() << "(unblock) - unblockingPC";
         this->unblockPC();
     }else if(answ == "block"){
+        qDebug() << "(block) - blockingPC";
         this->blockPC();
     }else{
         QTime time = QTime::fromString(answ);
@@ -117,10 +123,15 @@ void Client::blockPC()
     if (!thr->isRunning() || thr->isBlocked == 0) {
         this->stopTimers();
         window->changeTime(QString::fromUtf8("00:00:00"));
+        //thr->isBlocked = 1;
         thr->start();
     }
-    socket->write("blocked");
-    socket->waitForBytesWritten(500);
+    if (connectedToServer == 1){
+        socket->write("blocked");
+        socket->waitForBytesWritten(500);
+    }
+
+    qDebug() << "PC is blocked!";
 }
 
 void Client::unblockPC()

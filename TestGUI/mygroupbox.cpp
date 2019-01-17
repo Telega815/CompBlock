@@ -31,7 +31,7 @@ QGroupBox* MyGroupBox::createPCbox(QString name, QString ip, QString time){
     PCbox->setFocusPolicy(Qt::NoFocus);
     PCbox->setAutoFillBackground(false);
     PCbox->setStyleSheet(QLatin1String("QGroupBox { \n"
-"     border: 2px solid rgb(218, 218, 218); \n"
+"     border: 10px solid rgb(218, 218, 218); \n"
 "     border-radius: 3px; \n"
 " } "));
     PCbox->setFlat(false);
@@ -99,7 +99,6 @@ QGroupBox* MyGroupBox::createPCbox(QString name, QString ip, QString time){
 
 
     horizontalLayout->addLayout(verticalLayout_2);
-
     PCbox->setTitle(name);
     IPvalue->setText(ip);
     if(set->settingsReaded){

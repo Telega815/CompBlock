@@ -12,6 +12,8 @@ MyPinas::MyPinas(QWidget *parent) :
 
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Window
+    | Qt::WindowMinimizeButtonHint);
     ui->RP_scrollAreaWidgetContents->setLayout(ui->RP_VLayout);
     clientsCount = 0;
     selectedPC = -1;
@@ -47,8 +49,19 @@ void MyPinas::setViewTime(int clientIndex, QByteArray *time)
     qDebug() << "serViewTime: " << time;
     MyGroupBox *box = clients.at(clientIndex);
     if (QString::compare("--:--:--", box->TimerLabel->text(), Qt::CaseInsensitive) == 0){
-        box->TimerLabel->setText(time->toStdString().c_str());
+
+        qDebug() << "ssssssssssssssssssssssssss";
+        QString timeStr = time->toStdString().c_str();
+        box->TimerLabel->setText(timeStr);
         box->TimerLabel->update();
+
+        if (QString::compare("00:00:00", timeStr, Qt::CaseInsensitive) != 0){
+            qDebug() << "timer was running on the client: " << timeStr;
+            ui->LP_TimeValue->setText(timeStr);
+            ui->LP_TimeValue->update();
+            box->mustBeBlocked = false;
+            setTimers(clientIndex, &timeStr);
+        }
     }
     if(selectedPC == clientIndex)
         box->ChooseButton->click();
@@ -268,7 +281,8 @@ void MyPinas::on_myBtn_clicked()
     }
     selectedPC = strIndex.toInt();
     MyGroupBox *box = clients.at(selectedPC);
-    box->PCbox->setStyleSheet(QStringLiteral("color: rgba(0, 0, 108, 255);"));
+
+    box->PCbox->setStyleSheet(QStringLiteral("color: rgba(0, 0, 0, 255);background-color:rgba(0, 186, 255, 255);"));
     if(box->connected == 0){
         if (set->settingsReaded) {
             box->StatusButton->setText(set->getOption("Disconected"));
@@ -287,6 +301,7 @@ void MyPinas::on_myBtn_clicked()
         ui->LP_TimerBox_SetButton->setDisabled(false);
         ui->RenameButton->setDisabled(false);
     }
+
     changeLP(box->PCbox->title(), box->IPvalue->text(), box->TimerLabel->text(), box->StatusButton->isChecked());
 }
 

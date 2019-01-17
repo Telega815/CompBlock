@@ -30,6 +30,7 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     alertdialog.ui
 
-RESOURCES +=
+RESOURCES += \
+    trayicon.qrc
 
 DISTFILES +=
